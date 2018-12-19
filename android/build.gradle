@@ -1,0 +1,76 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://maven.google.com"
+        }
+        jcenter()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:2.2.3"
+    }
+}
+
+
+apply plugin: "com.android.library"
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+def _reactNativeVersion = safeExtGet("reactNative", "+")
+def _compileSdkVersion = safeExtGet("compileSdkVersion", 23)
+def _glideVersion = safeExtGet("glideVersion", "4.7.1")
+
+android {
+    // compileSdkVersion _compileSdkVersion
+    // buildToolsVersion safeExtGet("buildToolsVersion", "24.0.1")
+
+    compileSdkVersion 23
+    buildToolsVersion "24.0.1"
+
+    sourceSets {
+        main {
+            java {
+                if (safeExtGet("excludeAppGlideModule", false)) {
+                    srcDir "src"
+                    exclude "**/FastImageGlideModule.java"
+                }
+            }
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion safeExtGet("minSdkVersion", 16)
+        targetSdkVersion safeExtGet("targetSdkVersion", 23)
+        versionCode 1
+        versionName "1.0"
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    maven {
+        url "https://maven.google.com"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.facebook.react:react-native:${_reactNativeVersion}"
+    compile "com.android.support:support-v4:24+"
+    compile("com.github.bumptech.glide:glide:${_glideVersion}") {
+        exclude group: "com.android.support", module: "glide"
+    }
+    compile("com.github.bumptech.glide:annotations:${_glideVersion}") {
+        exclude group: "com.android.support", module: "annotations"
+    }
+    annotationProcessor "com.github.bumptech.glide:compiler:${_glideVersion}"
+
+
+    compile("com.github.bumptech.glide:okhttp3-integration:${_glideVersion}") {
+       exclude group: "com.android.support", module: "okhttp3-integration"
+       exclude group: "com.android.support", module: "glide-parent"
+    }
+}
